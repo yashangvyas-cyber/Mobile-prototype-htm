@@ -682,31 +682,29 @@
         </div>
 
         <!-- ================= BOTTOM NAVIGATION ================= -->
-        <div id="bottom-nav" class="absolute bottom-0 w-full bg-white pb-6 pt-3 px-6 border-t border-slate-200 flex justify-around items-center z-40 transition-transform duration-300">
-            <!-- Projects Tab (Active by default) -->
-            <button onclick="switchTab('projects')" id="tab-projects" class="nav-btn flex flex-col items-center justify-center gap-1 transition-all duration-300" data-target="screen-projects">
-                <div id="tab-projects-pill" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-indigo-50 transition-all duration-300">
-                    <i data-lucide="layout-grid" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-                    <span class="tab-label text-xs font-bold text-indigo-600 overflow-hidden whitespace-nowrap" style="max-width:60px;opacity:1;transition:max-width 0.3s ease,opacity 0.3s ease">Projects</span>
+        <div id="bottom-nav" class="absolute bottom-0 w-full bg-white pb-6 pt-2 px-2 border-t border-slate-100 flex justify-around items-center z-40 transition-transform duration-300" style="box-shadow:0 -2px 12px rgba(0,0,0,0.08)">
+            <!-- Projects Tab (active by default) -->
+            <button onclick="switchTab('projects')" id="tab-projects" class="nav-btn flex flex-col items-center gap-0.5 flex-1" data-target="screen-projects">
+                <div id="bubble-projects" class="px-4 py-1.5 rounded-2xl transition-all duration-200" style="background:#EEF2FF">
+                    <i id="icon-projects" data-lucide="folder" class="w-[22px] h-[22px] text-indigo-600"></i>
                 </div>
+                <span id="label-projects" class="text-[11px] font-bold text-indigo-600">Projects</span>
             </button>
 
             <!-- Deals Tab -->
-            <button onclick="switchTab('deals')" id="tab-deals" class="nav-btn flex flex-col items-center justify-center gap-1 transition-all duration-300" data-target="screen-deals">
-                <div id="tab-deals-pill" class="flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-300">
-                    <i data-lucide="briefcase" class="w-5 h-5 text-slate-400 shrink-0"></i>
-                    <span class="tab-label text-xs font-bold text-indigo-600 overflow-hidden whitespace-nowrap" style="max-width:0;opacity:0;transition:max-width 0.3s ease,opacity 0.3s ease">Deals</span>
+            <button onclick="switchTab('deals')" id="tab-deals" class="nav-btn flex flex-col items-center gap-0.5 flex-1" data-target="screen-deals">
+                <div id="bubble-deals" class="px-4 py-1.5 rounded-2xl transition-all duration-200" style="background:transparent">
+                    <i id="icon-deals" data-lucide="dollar-sign" class="w-[22px] h-[22px] text-slate-400"></i>
                 </div>
-                <span class="tab-static-label text-[10px] font-medium text-slate-400" style="transition:opacity 0.3s">Deals</span>
+                <span id="label-deals" class="text-[11px] font-medium text-slate-400">Deals</span>
             </button>
 
             <!-- Profile Tab -->
-            <button onclick="toggleProfile()" id="tab-profile" class="nav-btn flex flex-col items-center justify-center gap-1 transition-all duration-300">
-                <div class="flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-300">
-                    <i data-lucide="user" class="w-5 h-5 text-slate-400 shrink-0"></i>
-                    <span class="tab-label text-xs font-bold text-indigo-600 overflow-hidden whitespace-nowrap" style="max-width:0;opacity:0;transition:max-width 0.3s ease,opacity 0.3s ease">Profile</span>
+            <button onclick="toggleProfile()" id="tab-profile" class="flex flex-col items-center gap-0.5 flex-1">
+                <div id="bubble-profile" class="px-4 py-1.5 rounded-2xl transition-all duration-200" style="background:transparent">
+                    <i data-lucide="user" class="w-[22px] h-[22px] text-slate-400"></i>
                 </div>
-                <span class="tab-static-label text-[10px] font-medium text-slate-400">Profile</span>
+                <span class="text-[11px] font-medium text-slate-400">Profile</span>
             </button>
         </div>
 
@@ -764,36 +762,40 @@
 
         function switchTab(tabName) {
             const targetId = 'screen-' + tabName;
-            const tabIds = ['projects', 'deals'];
 
-            tabIds.forEach(id => {
-                const pill = document.getElementById('tab-' + id + '-pill');
-                const icon = pill ? pill.querySelector('i') : null;
-                const label = pill ? pill.querySelector('.tab-label') : null;
-                const staticLabel = document.querySelector('#tab-' + id + ' .tab-static-label');
+            // Tab config matching Flutter homeShell (3 tabs, no Messages)
+            const tabs = [
+                { id: 'projects', iconOut: 'folder-open', iconFill: 'folder',      target: 'screen-projects' },
+                { id: 'deals',    iconOut: 'dollar-sign', iconFill: 'dollar-sign', target: 'screen-deals'    },
+            ];
 
-                if (id === tabName) {
-                    // Activate: show pill bg, expand label
-                    if (pill) pill.classList.add('bg-indigo-50');
-                    if (icon) { icon.classList.remove('text-slate-400'); icon.classList.add('text-indigo-600'); }
-                    if (label) { label.style.maxWidth = '70px'; label.style.opacity = '1'; }
-                    if (staticLabel) staticLabel.style.opacity = '0';
-                } else {
-                    // Deactivate: hide pill bg, collapse label
-                    if (pill) pill.classList.remove('bg-indigo-50');
-                    if (icon) { icon.classList.remove('text-indigo-600'); icon.classList.add('text-slate-400'); }
-                    if (label) { label.style.maxWidth = '0'; label.style.opacity = '0'; }
-                    if (staticLabel) staticLabel.style.opacity = '1';
+            tabs.forEach(tab => {
+                const bubble = document.getElementById('bubble-' + tab.id);
+                const icon   = document.getElementById('icon-'   + tab.id);
+                const label  = document.getElementById('label-'  + tab.id);
+                const isActive = tab.id === tabName;
+
+                if (bubble) bubble.style.background = isActive ? '#EEF2FF' : 'transparent';
+                if (icon)   {
+                    icon.setAttribute('data-lucide', isActive ? tab.iconFill : tab.iconOut);
+                    icon.className = 'w-[22px] h-[22px] ' + (isActive ? 'text-indigo-600' : 'text-slate-400');
+                }
+                if (label)  {
+                    label.className = 'text-[11px] ' + (isActive ? 'font-bold text-indigo-600' : 'font-medium text-slate-400');
                 }
             });
+
+            // Re-render lucide icons
+            lucide.createIcons();
 
             // Switch screen
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active', 'previous');
             });
-            document.getElementById(targetId).classList.add('active');
+            const target = document.getElementById(targetId);
+            if (target) target.classList.add('active');
 
-            // Reset stack
+            // Reset nav stack
             navigationStack = [targetId];
             toggleHeaderNav(true);
         }
